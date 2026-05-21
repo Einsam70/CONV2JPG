@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Convertidor PNG → JPG con extracción de metadatos</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    body{max-width:900px;margin:24px auto;padding:18px;border-radius:12px;background:#fafafa;color:#111}
+    h1{font-size:1.25rem;margin:0 0 8px}
+    .panel{background:#fff;padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(20,20,20,0.06)}
+    .controls{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-top:12px}
+    input[type=file]{display:block}
+    .thumbs{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+    .thumb{width:150px;padding:8px;border-radius:8px;background:#fff;border:1px solid #eee;text-align:center}
+    .thumb img{max-width:100%;height:100px;object-fit:contain;background:transparent}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    button{background:#0b79ff;color:#fff;border:none;padding:8px 10px;border-radius:8px;cursor:pointer}
+    button.secondary{background:#e6e6e6;color:#111}
+    label{font-size:0.9rem}
+    .footer{margin-top:14px;font-size:0.85rem;color:#555}
+    progress{width:100%}
+  </style>
+</head>
+<body>
+  <h1>Convertidor PNG → JPG con metadatos</h1>
+  <p>Convierte imágenes PNG a JPG con opciones de calidad, redimensionado, renombrado y extracción de metadatos <code>tEXt</code>/<code>iTXt</code>. Todo ocurre en tu navegador.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div>
+        <label>Seleccionar imágenes:</label>
+        <input id="files" type="file" accept="image/png,image/*" multiple />
+      </div>
+      <div>
+        <label for="quality">Calidad JPG: <span id="qualityVal">0.9</span></label>
+        <input id="quality" type="range" min="0.1" max="1" step="0.05" value="0.9" />
+      </div>
+      <div>
+        <label for="bgcolor">Color de fondo:</label>
+        <input id="bgcolor" type="color" value="#ffffff" />
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label>Redimensionar ancho (px, proporcional):</label>
+        <input id="resizeWidth" type="number" placeholder="ej. 800" min="1" style="width:100px" />
+      </div>
+      <div>
+        <label>Prefijo para renombrado:</label>
+        <input id="renamePrefix" type="text" placeholder="ej. imagen_" style="width:120px" />
+      </div>
+      <div>
+        <label>Inicio numeración:</label>
+        <input id="renameStart" type="number" value="1" min="1" style="width:80px" />
+      </div>
+      <div>
+        <label><input id="zipIt" type="checkbox" /> Crear ZIP</label>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="row">
+        <button id="convert">Convertir y descargar</button>
+        <button class="secondary" id="clear">Limpiar</button>
+      </div>
+      <div style="text-align:right;color:#666">Resultado: <span id="resultCount">0</span> imágenes preparadas</div>
+    </div>
+
+    <progress id="progress" value="0" max="100" style="display:none;margin-top:10px"></progress>
+    <div class="thumbs" id="thumbs"></div>
+
+    <div class="footer">Si se detectan metadatos PNG (tEXt, iTXt), se generará un archivo de texto adicional con el mismo nombre. La redimensión es proporcional.</div>
+  </div>
+
+  <script>
+    const filesEl=document.getElementById('files');
+    const qualityEl=document.getElementById('quality');
+    const qualityVal=document.getElementById('qualityVal');
+    const bgcolorEl=document.getElementById('bgcolor');
+    const resizeWidthEl=document.getElementById('resizeWidth');
+    const renamePrefixEl=document.getElementById('renamePrefix');
+    const renameStartEl=document.getElementById('renameStart');
+    const zipCheckbox=document.getElementById('zipIt');
+    const thumbs=document.getElementById('thumbs');
+    const resultCount=document.getElementById('resultCount');
+    const progress=document.getElementById('progress');
+    const convertBtn=document.getElementById('convert');
+    const clearBtn=document.getElementById('clear');
+
+    let selectedFiles=[];
+
+    qualityEl.addEventListener('input',()=>qualityVal.textContent=qualityEl.value);
+
+    filesEl.addEventListener('change',e=>handleFiles(Array.from(e.target.files)));
+
+    function handleFiles(list){
+      const imgs=list.filter(f=>f.type.startsWith('image/'));
+      selectedFiles.push(...imgs);
+      renderThumbs();
+    }
+
+    function renderThumbs(){
+      thumbs.innerHTML='';
+      selectedFiles.forEach((f,i)=>{
+        const div=document.createElement('div');div.className='thumb';
+        const img=document.createElement('img');
+        const r=new FileReader();r.onload=e=>img.src=e.target.result;r.readAsDataURL(f);
+        div.appendChild(img);
+        const name=document.createElement('div');name.textContent=f.name;name.style.fontSize='0.8rem';div.appendChild(name);
+        const del=document.createElement('button');del.textContent='Eliminar';del.className='secondary';
+        del.onclick=()=>{selectedFiles.splice(i,1);renderThumbs();};div.appendChild(del);
+        thumbs.appendChild(div);
+      });
+      resultCount.textContent=selectedFiles.length;
+    }
+
+    clearBtn.addEventListener('click',()=>{selectedFiles=[];filesEl.value='';renderThumbs();});
+
+    async function extractPNGTextChunks(file){
+      const buf=await file.arrayBuffer();
+      const data=new DataView(buf);
+      let offset=8; // saltar cabecera PNG
+      const textEntries=[];
+      while(offset<data.byteLength){
+        const length=data.getUint32(offset); offset+=4;
+        if(offset+4>data.byteLength) break;
+        const type=String.fromCharCode(
+          data.getUint8(offset),data.getUint8(offset+1),data.getUint8(offset+2),data.getUint8(offset+3));
+        offset+=4;
+        if(type==='tEXt'||type==='iTXt'){ // ignoramos zTXt por compresión
+          const textBytes=new Uint8Array(buf,offset,length);
+          const textStr=new TextDecoder('utf-8').decode(textBytes);
+          const [k,...rest]=textStr.split('\0');
+          const v=rest.join('\0');
+          textEntries.push(`${k}: ${v}`);
+        }
+        offset+=length+4; // skip CRC
+      }
+      return textEntries.join('\n');
+    }
+
+    function fileToJpegBlob(file, quality, bgColor, targetWidth){
+      return new Promise((resolve, reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>{
+          const img=new Image();
+          img.onload=()=>{
+            let width=img.naturalWidth;
+            let height=img.naturalHeight;
+            if(targetWidth && targetWidth<width){
+              const ratio=targetWidth/width; width=targetWidth; height=Math.round(height*ratio);
+            }
+            const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+            const ctx=canvas.getContext('2d');ctx.fillStyle=bgColor;ctx.fillRect(0,0,width,height);ctx.drawImage(img,0,0,width,height);
+            canvas.toBlob(b=>b?resolve(b):reject(new Error('No se pudo convertir.')),'image/jpeg',quality);
+          };
+          img.onerror=()=>reject(new Error('Error al cargar imagen'));
+          img.src=reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function downloadBlob(blob, name){
+      const a=document.createElement('a');
+      const url=URL.createObjectURL(blob);
+      a.href=url; a.download=name; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),500);
+    }
+
+    async function loadScript(src){
+      return new Promise((res,rej)=>{
+        const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);
+      });
+    }
+
+    convertBtn.addEventListener('click',async()=>{
+      if(selectedFiles.length===0) return alert('Selecciona imágenes primero.');
+      convertBtn.disabled=true; progress.style.display='block'; progress.max=selectedFiles.length; progress.value=0;
+      const q=parseFloat(qualityEl.value); const bg=bgcolorEl.value; const resizeWidth=parseInt(resizeWidthEl.value)||null;
+      const prefix=renamePrefixEl.value.trim()||''; let counter=parseInt(renameStartEl.value)||1;
+      const makeZip=zipCheckbox.checked; let zip=null;
+      if(makeZip){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'); zip=new JSZip();}
+
+      for(let i=0;i<selectedFiles.length;i++){
+        const f=selectedFiles[i];
+        const jpgBlob=await fileToJpegBlob(f,q,bg,resizeWidth);
+        const baseName=prefix?`${prefix}${String(counter++).padStart(3,'0')}`:f.name.replace(/\.[^.]+$/,'');
+        const jpgName=baseName+'.jpg';
+        if(zip) zip.file(jpgName,jpgBlob); else downloadBlob(jpgBlob,jpgName);
+
+        // Extraer metadatos tEXt/iTXt
+        try{
+          const txt=await extractPNGTextChunks(f);
+          if(txt){
+            const txtBlob=new Blob([txt],{type:'text/plain'});
+            const txtName=baseName+'.txt';
+            if(zip) zip.file(txtName,txtBlob); else downloadBlob(txtBlob,txtName);
+          }
+        }catch(e){console.warn('Sin metadatos en',f.name,e);}
+
+        progress.value=i+1;
+      }
+
+      if(zip){const content=await zip.generateAsync({type:'blob'}); downloadBlob(content,'convertidas.zip');}
+      progress.style.display='none'; convertBtn.disabled=false;
+      alert('Proceso completado.');
+    });
+  </script>
+</body>
+</html>
