@@ -42,3 +42,26 @@ Al estar diseñada con tecnologías web nativas, no requiere de servidores, base
 2. Asegúrate de mantener juntos en el mismo directorio los archivos `index.html` y `jszip.min.js`.
 3. Doble clic sobre `index.html` para abrirlo en cualquier navegador moderno.
 4. ¡Listo! Puedes trabajar de manera **100% offline** (incluso sin conexión a internet).
+
+📂 tu-carpeta-del-proyecto/
+├── 📄 index.html   <-- Archivo principal de la aplicación
+└── 📄 jszip.min.js       <-- Librería local para soporte ZIP offline
+
+---
+
+## 🛠️ Tecnologías Utilizadas
+
+* **HTML5** (Estructura semántica)
+* **CSS3** (Variables nativas, diseño fluido y transiciones de estado)
+* **Vanilla JavaScript** (Manipulación del DOM, Canvas 2D API, DataView para lectura binaria de chunks y File System Access API)
+* **JSZip.js** (Compresión local para entornos restringidos)
+
+---
+
+## 📝 Próximas Mejoras (To-Do)
+
+- [x] Depurar y modernizar el estilo estético del CSS.
+- [x] Añadir soporte bilingüe (Español/Inglés).
+- [x] Implementar el conmutador de Modo Oscuro nativo.
+- [ ] Implementar un área de *Drag & Drop* (arrastrar y soltar) para agilizar la carga de imágenes.
+- [ ] Permitir la exportación masiva a formatos alternativos (ej. WebP).
