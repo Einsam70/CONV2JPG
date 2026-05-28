@@ -1,6 +1,5 @@
 # Convertidor y Optimizador Universal de Imágenes (CONV2JPG)
 
-![GitHub repo size](https://img.shields.io/github/repo-size/Einsam70/CONV2JPG?color=blue)
 [![Licencia: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Vanilla JS](https://img.shields.io/badge/Vanilla-JS-yellow)
 [![Privacidad](https://img.shields.io/badge/privacy-100%25%20Local-orange)](https://developer.mozilla.org/en-US/docs/Web/Privacy)
