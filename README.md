@@ -44,8 +44,8 @@ Al estar diseñada con tecnologías web nativas, no requiere de servidores, base
 4. ¡Listo! Puedes trabajar de manera **100% offline** (incluso sin conexión a internet).
 
 📂 tu-carpeta-del-proyecto/
-├── 📄 index.html   <-- Archivo principal de la aplicación
-└── 📄 jszip.min.js       <-- Librería local para soporte ZIP offline
+* 📄 index.html   <-- Archivo principal de la aplicación
+* 📄 jszip.min.js       <-- Librería local para soporte ZIP offline
 
 ---
 
