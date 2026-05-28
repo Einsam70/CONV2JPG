@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title id="txt-tab-title">Convertidor y Optimizador Universal de Imágenes</title>
+  <style>
+    /* --- VARIABLES CSS PARA MODO CLARO Y OSCURO --- */
+    :root {
+      --bg-body: #f4f6f9;
+      --bg-panel: #ffffff;
+      --text-main: #212529;
+      --text-muted: #495057;
+      --text-footer: #6c757d;
+      --border-color: #dee2e6;
+      --btn-primary: #007bff;
+      --btn-primary-hover: #0056b3;
+      --btn-success: #28a745;
+      --btn-success-hover: #218838;
+      --btn-secondary: #e6e6e6;
+      --btn-secondary-text: #111;
+      --btn-secondary-hover: #d4d4d4;
+      --shadow: 0 4px 12px rgba(20, 20, 20, 0.05);
+      --thumb-bg: #f8f9fa;
+    }
+
+    [data-theme="dark"] {
+      --bg-body: #121212;
+      --bg-panel: #1e1e1e;
+      --text-main: #f8f9fa;
+      --text-muted: #ced4da;
+      --text-footer: #adb5bd;
+      --border-color: #343a40;
+      --btn-primary: #375a7f;
+      --btn-primary-hover: #2b4764;
+      --btn-success: #449d44;
+      --btn-success-hover: #357ebd;
+      --btn-secondary: #3a3a3a;
+      --btn-secondary-text: #f8f9fa;
+      --btn-secondary-hover: #4a4a4a;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --thumb-bg: #2d2d2d;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+      max-width: 950px;
+      margin: 24px auto;
+      padding: 18px;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      transition: background-color 0.3s, color 0.3s;
+      line-height: 1.4;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .header-text {
+      flex: 1;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin: 0 0 6px 0;
+    }
+
+    .header-text p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .top-controls {
+      display: flex;
+      gap: 6px;
+      margin-left: 16px;
+    }
+
+    .panel {
+      background-color: var(--bg-panel);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input[type="file"] {
+      display: block;
+      width: 100%;
+      font-size: 0.9rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="range"] {
+      width: 100%;
+      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--bg-panel);
+      color: var(--text-main);
+      font-size: 0.9rem;
+    }
+
+    input[type="color"] {
+      display: block;
+      width: 60px;
+      height: 34px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 2px;
+      cursor: pointer;
+      background: none;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background-color: var(--btn-primary);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: var(--btn-primary-hover);
+    }
+
+    button.secondary {
+      background-color: var(--btn-secondary);
+      color: var(--btn-secondary-text);
+    }
+
+    button.secondary:hover {
+      background-color: var(--btn-secondary-hover);
+    }
+
+    button.mini-btn {
+      padding: 4px 8px;
+      font-size: 0.78rem;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .thumb {
+      width: 160px;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: var(--thumb-bg);
+      border: 1px solid var(--border-color);
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+
+    .thumb img {
+      max-width: 100%;
+      height: 100px;
+      object-fit: contain;
+      background: transparent;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    .thumb-name {
+      font-size: 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 6px;
+    }
+
+    .footer {
+      margin-top: 18px;
+      font-size: 0.82rem;
+      color: var(--text-footer);
+      border-top: 1px solid var(--border-color);
+      padding-top: 12px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: monospace;
+      background-color: var(--border-color);
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-container">
+    <div class="header-text">
+      <h1 id="lbl-title">Convertidor y Optimizador Universal de Imágenes</h1>
+      <p id="lbl-desc">Convierte tus imágenes (PNG, JPG, WebP, etc.) a formato JPG optimizado con opciones de calidad, redimensionado y renombrado. Todo ocurre de forma 100% local en tu navegador.</p>
+    </div>
+    <div class="top-controls">
+      <button class="secondary mini-btn" id="toggleLang">EN</button>
+      <button class="secondary mini-btn" id="toggleTheme">🌙</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="form-group" style="flex: 1.5;">
+        <label id="lbl-select-files">Seleccionar imágenes:</label>
+        <input id="files" type="file" accept="image/*" multiple />
+      </div>
+      <div class="form-group">
+        <label for="quality"><span id="lbl-quality">Calidad JPG</span>: <span id="qualityVal">0.9</span></label>
+        <input id="quality" type="range" min="0.1" max="1" step="0.05" value="0.9" />
+      </div>
+      <div class="form-group" style="flex: 0.3; min-width: 70px;">
+        <label for="bgcolor" id="lbl-bgcolor">Fondo:</label>
+        <input id="bgcolor" type="color" value="#ffffff" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label id="lbl-resize-width">Redimensionar ancho (px, proporcional):</label>
+        <input id="resizeWidth" type="number" placeholder="ej. 800" min="1" />
+      </div>
+      <div class="form-group">
+        <label id="lbl-prefix">Prefijo para renombrado:</label>
+        <input id="renamePrefix" type="text" placeholder="ej. imagen_" />
+      </div>
+      <div class="form-group" style="flex: 0.5; min-width: 90px;">
+        <label id="lbl-start-num">Inicio:</label>
+        <input id="renameStart" type="number" value="1" min="1" />
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="row" style="margin-bottom:0">
+        <button id="convert">Convertir y descargar individuales</button>
+        <button id="convertToFolder" style="background-color:#28a745;">Convertir y guardar en Carpeta</button>
+        <button class="secondary" id="clear">Limpiar</button>
+      </div>
+      <div style="text-align:right; color: var(--text-muted); font-size: 0.9rem;">
+        <span id="lbl-result">Resultado</span>: <span id="resultCount">0</span> <span id="lbl-ready">imágenes preparadas</span>
+      </div>
+    </div>
+
+    <progress id="progress" value="0" max="100" style="display:none; margin-top:16px;"></progress>
+    <div class="thumbs" id="thumbs"></div>
+
+    <div class="footer" id="lbl-footer">
+      <strong>Nota sobre metadatos:</strong> Si la imagen de origen es un PNG y contiene metadatos embebidos (chunks <code>tEXt</code>/<code>iTXt</code>), se generará automáticamente un archivo de texto descriptivo con el mismo nombre. La redimensión de las imágenes conserva siempre la proporción original.
+    </div>
+
+  </div>
+
+  <script src="jszip.min.js"></script>
+
+  <script>
+    const filesEl=document.getElementById('files');
+    const qualityEl=document.getElementById('quality');
+    const qualityVal=document.getElementById('qualityVal');
+    const bgcolorEl=document.getElementById('bgcolor');
+    const resizeWidthEl=document.getElementById('resizeWidth');
+    const renamePrefixEl=document.getElementById('renamePrefix');
+    const renameStartEl=document.getElementById('renameStart');
+    const thumbs=document.getElementById('thumbs');
+    const resultCount=document.getElementById('resultCount');
+    const progress=document.getElementById('progress');
+    const convertBtn=document.getElementById('convert');
+    const clearBtn=document.getElementById('clear');
+    const convertToFolderBtn = document.getElementById('convertToFolder');
+    const toggleThemeBtn = document.getElementById('toggleTheme');
+    const toggleLangBtn = document.getElementById('toggleLang');
+
+    let selectedFiles=[];
+    let currentLang = 'es';
+
+    // --- DICCIONARIO BILINGÜE ---
+    const i18n = {
+      es: {
+        tabTitle: "Convertidor y Optimizador Universal de Imágenes",
+        title: "Convertidor y Optimizador Universal de Imágenes",
+        desc: "Convierte tus imágenes (PNG, JPG, WebP, etc.) a formato JPG optimizado con opciones de calidad, redimensionado y renombrado. Todo ocurre de forma 100% local en tu navegador.",
+        selectFiles: "Seleccionar imágenes:",
+        quality: "Calidad JPG",
+        bgcolor: "Fondo:",
+        resizeWidth: "Redimensionar ancho (px, proporcional):",
+        prefix: "Prefijo para renombrado:",
+        startNum: "Inicio:",
+        btnIndiv: "Convertir y descargar individuales",
+        btnFolder: "Convertir y guardar en Carpeta",
+        btnZip: "Convertir y descargar todo en un ZIP",
+        btnClear: "Limpiar",
+        result: "Resultado",
+        ready: "imágenes preparadas",
+        del: "Eliminar",
+        alertSelect: "Selecciona imágenes primero.",
+        alertDoneFolder: "¡Proceso completado! Archivos guardados en la carpeta.",
+        alertDoneZip: "¡Proceso completado! Se ha descargado el archivo ZIP con todas las imágenes.",
+        alertZipMissing: "La librería JSZip no está disponible. No se puede procesar en este navegador sin conexión.",
+        footer: "<strong>Nota sobre metadatos:</strong> Si la imagen de origen es un PNG y contiene metadatos embebidos (chunks <code>tEXt</code>/<code>iTXt</code>), se generará automáticamente un archivo de texto descriptivo con el mismo nombre. La redimensión de las imágenes conserva siempre la proporción original."
+      },
+      en: {
+        tabTitle: "Universal Image Converter & Optimizer",
+        title: "Universal Image Converter & Optimizer",
+        desc: "Convert your images (PNG, JPG, WebP, etc.) to optimized JPG format with quality options, resizing, and renaming. Everything happens 100% locally in your browser.",
+        selectFiles: "Select images:",
+        quality: "JPG Quality",
+        bgcolor: "Background:",
+        resizeWidth: "Resize width (px, proportional):",
+        prefix: "Renaming prefix:",
+        startNum: "Start:",
+        btnIndiv: "Convert and download individual files",
+        btnFolder: "Convert and save to Folder",
+        btnZip: "Convert and download everything in a ZIP",
+        btnClear: "Clear",
+        result: "Result",
+        ready: "images prepared",
+        del: "Delete",
+        alertSelect: "Please select images first.",
+        alertDoneFolder: "Process completed! Files successfully saved into your folder.",
+        alertDoneZip: "Process completed! A single ZIP file has been downloaded with all images.",
+        alertZipMissing: "JSZip library is missing. Cannot process zip file offline.",
+        footer: "<strong>Metadata note:</strong> If the source image is a PNG and contains embedded metadata (<code>tEXt</code>/<code>iTXt</code> chunks), an additional text file will be automatically generated. Image resizing always preserves original proportions."
+      }
+    };
+
+    function updateUIStrings() {
+      const texts = i18n[currentLang];
+      document.getElementById('txt-tab-title').textContent = texts.tabTitle;
+      document.getElementById('lbl-title').textContent = texts.title;
+      document.getElementById('lbl-desc').textContent = texts.desc;
+      document.getElementById('lbl-select-files').textContent = texts.selectFiles;
+      document.getElementById('lbl-quality').textContent = texts.quality;
+      document.getElementById('lbl-bgcolor').textContent = texts.bgcolor;
+      document.getElementById('lbl-resize-width').textContent = texts.resizeWidth;
+      document.getElementById('lbl-prefix').textContent = texts.prefix;
+      document.getElementById('lbl-start-num').textContent = texts.startNum;
+      convertBtn.textContent = texts.btnIndiv;
+      clearBtn.textContent = texts.btnClear;
+      document.getElementById('lbl-result').textContent = texts.result;
+      document.getElementById('lbl-ready').textContent = texts.ready;
+      document.getElementById('lbl-footer').innerHTML = texts.footer;
+
+      if (!window.showDirectoryPicker) {
+        convertToFolderBtn.textContent = texts.btnZip;
+      } else {
+        convertToFolderBtn.textContent = texts.btnFolder;
+      }
+      
+      // Actualizar dinámicamente los botones de eliminar de las miniaturas existentes
+      thumbs.querySelectorAll('.thumb button').forEach(b => b.textContent = texts.del);
+    }
+
+    // Cambiar idioma
+    toggleLangBtn.addEventListener('click', () => {
+      currentLang = currentLang === 'es' ? 'en' : 'es';
+      toggleLangBtn.textContent = currentLang === 'es' ? 'EN' : 'ES';
+      updateUIStrings();
+    });
+
+    // Cambiar tema (Modo Oscuro)
+    toggleThemeBtn.addEventListener('click', () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      if (theme === 'dark') {
+        document.documentElement.removeAttribute('data-theme');
+        toggleThemeBtn.textContent = '🌙';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        toggleThemeBtn.textContent = '☀️';
+      }
+    });
+
+    // Iniciar botón de carpeta/ZIP con el color correcto si no está soportado nativamente
+    if (!window.showDirectoryPicker) {
+      convertToFolderBtn.style.backgroundColor = "#fd7e14"; 
+    }
+
+    qualityEl.addEventListener('input',()=>qualityVal.textContent=qualityEl.value);
+    filesEl.addEventListener('change',e=>handleFiles(Array.from(e.target.files)));
+
+    function handleFiles(list){
+      const imgs=list.filter(f=>f.type.startsWith('image/'));
+      selectedFiles.push(...imgs);
+      renderThumbs();
+    }
+
+    function renderThumbs(){
+      thumbs.querySelectorAll('img').forEach(img => {
+        if(img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
+      });
+      
+      thumbs.innerHTML = '';
+      selectedFiles.forEach((f, i) => {
+        const div = document.createElement('div'); div.className = 'thumb';
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(f);
+        div.appendChild(img);
+        
+        const name = document.createElement('div'); 
+        name.className = 'thumb-name';
+        name.textContent = f.name; 
+        div.appendChild(name);
+        
+        const del = document.createElement('button'); 
+        del.textContent = i18n[currentLang].del; 
+        del.className = 'secondary mini-btn';
+        del.onclick = () => { selectedFiles.splice(i, 1); renderThumbs(); }; 
+        div.appendChild(del);
+        
+        thumbs.appendChild(div);
+      });
+      resultCount.textContent = selectedFiles.length;
+    }
+
+    clearBtn.addEventListener('click',()=>{selectedFiles=[];filesEl.value='';renderThumbs();});
+
+    async function extractPNGTextChunks(file){
+      const buf = await file.arrayBuffer();
+      const data = new DataView(buf);
+      let offset = 8; 
+      const textEntries = [];
+      while(offset < data.byteLength){
+        if (offset + 8 > data.byteLength) break; 
+        const length = data.getUint32(offset); offset += 4;
+        const type = String.fromCharCode(
+          data.getUint8(offset), data.getUint8(offset+1), data.getUint8(offset+2), data.getUint8(offset+3));
+        offset += 4;
+        
+        if (length < 0 || offset + length + 4 > data.byteLength) {
+          break;
+        }
+
+        if(type === 'tEXt' || type === 'iTXt'){ 
+          const textBytes = new Uint8Array(buf, offset, length);
+          const textStr = new TextDecoder('utf-8').decode(textBytes);
+          const [k, ...rest] = textStr.split('\0');
+          const v = rest.join('\0');
+          textEntries.push(`${k}: ${v}`);
+        }
+        offset += length + 4; 
+      }
+      return textEntries.join('\n');
+    }
+
+    function fileToJpegBlob(file, quality, bgColor, targetWidth){
+      return new Promise((resolve, reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>{
+          const img=new Image();
+          img.onload=()=>{
+            let width=img.naturalWidth;
+            let height=img.naturalHeight;
+            
+            if(targetWidth && targetWidth !== width){
+              const ratio = targetWidth / width; 
+              width = targetWidth; 
+              height = Math.round(height * ratio);
+            }
+            
+            const canvas=document.createElement('canvas');
+            canvas.width=width;
+            canvas.height=height;
+            const ctx=canvas.getContext('2d');
+            
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            ctx.fillStyle=bgColor;
+            ctx.fillRect(0,0,width,height);
+            ctx.drawImage(img,0,0,width,height);
+            
+            canvas.toBlob(b=>b?resolve(b):reject(new Error('No se pudo convertir.')),'image/jpeg',quality);
+          };
+          img.onerror=()=>reject(new Error('Error al cargar imagen'));
+          img.src=reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function downloadBlob(blob, name){
+      const a=document.createElement('a');
+      const url=URL.createObjectURL(blob);
+      a.href=url; a.download=name; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),1500); // 1.5s asegura descargas en cola sin corrupción masiva
+    }
+
+    async function loadScript(src){
+      return new Promise((res,rej)=>{
+        if(typeof JSZip !== 'undefined') return res(); // Si ya está cargada, saltar
+        const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);
+      });
+    }
+
+    function cambiarEstadoBotones(bloqueado) {
+      convertBtn.disabled = bloqueado;
+      convertToFolderBtn.disabled = bloqueado;
+      clearBtn.disabled = bloqueado;
+      progress.style.display = bloqueado ? 'block' : 'none';
+    }
+
+    // --- CONVERSIÓN INDIVIDUAL ---
+    convertBtn.addEventListener('click',async()=>{
+      if(selectedFiles.length===0) return alert(i18n[currentLang].alertSelect);
+      cambiarEstadoBotones(true);
+      progress.max=selectedFiles.length; progress.value=0;
+      
+      const q=parseFloat(qualityEl.value); const bg=bgcolorEl.value; const resizeWidth=parseInt(resizeWidthEl.value)||null;
+      const prefix=renamePrefixEl.value.trim()||''; let counter=parseInt(renameStartEl.value)||1;
+
+      for(let i=0;i<selectedFiles.length;i++){
+        const f=selectedFiles[i];
+        try {
+          const jpgBlob=await fileToJpegBlob(f,q,bg,resizeWidth);
+          const baseName=prefix?`${prefix}${String(counter++).padStart(3,'0')}`:f.name.replace(/\.[^.]+$/,'');
+          downloadBlob(jpgBlob,baseName+'.jpg');
+
+          const txt=await extractPNGTextChunks(f);
+          if(txt){
+            const txtBlob=new Blob([txt],{type:'text/plain'});
+            downloadBlob(txtBlob,baseName+'.txt');
+          }
+        } catch(e) {
+          console.warn('Sin metadatos o fallo en ', f.name, e);
+        }
+        progress.value=i+1;
+      }
+      cambiarEstadoBotones(false);
+    });
+
+    // --- CONVERSIÓN EN CARPETA O ZIP (HÍBRIDO) ---
+    convertToFolderBtn.addEventListener('click', async () => {
+      if (selectedFiles.length === 0) return alert(i18n[currentLang].alertSelect);
+
+      const q = parseFloat(qualityEl.value); 
+      const bg = bgcolorEl.value; 
+      const resizeWidth = parseInt(resizeWidthEl.value) || null;
+      const prefix = renamePrefixEl.value.trim() || ''; 
+      let counter = parseInt(renameStartEl.value) || 1;
+
+      cambiarEstadoBotones(true);
+      progress.max = selectedFiles.length;
+      progress.value = 0;
+
+      // MODO A: Guardado directo en Carpeta (Chrome, Edge...)
+      if (window.showDirectoryPicker) {
+        let dirHandle;
+        try {
+          dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        } catch (err) {
+          cambiarEstadoBotones(false);
+          return;
+        }
+
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const f = selectedFiles[i];
+          try {
+            const jpgBlob = await fileToJpegBlob(f, q, bg, resizeWidth);
+            const baseName = prefix ? `${prefix}${String(counter++).padStart(3, '0')}` : f.name.replace(/\.[^.]+$/, '');
+            const jpgName = baseName + '.jpg';
+
+            const fileHandle = await dirHandle.getFileHandle(jpgName, { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(jpgBlob);
+            await writable.close();
+
+            const txt = await extractPNGTextChunks(f);
+            if (txt) {
+              const txtBlob = new Blob([txt], { type: 'text/plain' });
+              const txtName = baseName + '.txt';
+              const txtFileHandle = await dirHandle.getFileHandle(txtName, { create: true });
+              const txtWritable = await txtFileHandle.createWritable();
+              await txtWritable.write(txtBlob);
+              await txtWritable.close();
+            }
+          } catch (e) {
+            console.error('Error procesando archivo:', f.name, e);
+          }
+          progress.value = i + 1;
+        }
+        alert(i18n[currentLang].alertDoneFolder);
+      } 
+      // MODO B: Fallback unificado a ZIP (Firefox, Safari...)
+      else {
+        // Validación protectora: si por algún motivo el archivo jszip.min.js no cargó al principio, avisamos
+        if (typeof JSZip === 'undefined') {
+          alert(i18n[currentLang].alertZipMissing);
+          cambiarEstadoBotones(false);
+          return;
+        }
+
+        const zip = new JSZip();
+
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const f = selectedFiles[i];
+          try {
+            const jpgBlob = await fileToJpegBlob(f, q, bg, resizeWidth);
+            const baseName = prefix ? `${prefix}${String(counter++).padStart(3, '0')}` : f.name.replace(/\.[^.]+$/, '');
+            const jpgName = baseName + '.jpg';
+
+            zip.file(jpgName, jpgBlob);
+
+            const txt = await extractPNGTextChunks(f);
+            if (txt) {
+              const txtBlob = new Blob([txt], { type: 'text/plain' });
+              zip.file(baseName + '.txt', txtBlob);
+            }
+          } catch (e) {
+            console.error('Error procesando en ZIP:', f.name, e);
+          }
+          progress.value = i + 1;
+        }
+
+        const content = await zip.generateAsync({ type: 'blob' });
+        downloadBlob(content, prefix ? `${prefix}lote.zip` : 'imagenes_convertidas.zip');
+        alert(i18n[currentLang].alertDoneZip);
+      }
+
+      cambiarEstadoBotones(false);
+    });
+
+    // Iniciar textos en español por defecto
+    updateUIStrings();
+  </script>
+</body>
+</html>

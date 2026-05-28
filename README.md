@@ -1,17 +1,44 @@
-# 1. Función
+# Convertidor y Optimizador Universal de Imágenes (CONV2JPG)
 
-PNG2JPG es una simple página que funciona offline para convertir archivos PNG con metadatos en archivos JPG con menos peso y extracción de metadatos a fichero TXT asociado.
+![GitHub repo size](https://img.shields.io/github/repo-size/Einsam70/CuentaLineas?color=blue)
+![License](https://img.shields.io/github/license/Einsam70/CuentaLineas?color=green)
+![Vanilla JS](https://img.shields.io/badge/Vanilla-JS-yellow)
 
-Función exportación en ZIP incluida para volúmenes grandes de imágenes. En caso de no exportar en ZIP el sistema requerirá confirmación de los nombres de las imágenes y ficheros asociados de forma individual.
+Una herramienta web ligera, moderna y **100% offline** diseñada para procesar, optimizar y renombrar lotes de imágenes de forma masiva sin comprometer tu privacidad. Todo el procesamiento ocurre localmente en el navegador, sin subir archivos a ningún servidor.
 
-# 2. Como utilizar
+---
 
-El único archivo necesario es "convertidor.html". Lo puedes descargar y ubicar en cualquier lugar de tu equipo, unidad USB, disco externo, etc. No necesita ninguna libreria adicional.
+![Captura de pantalla de TextMetrika](screenshots/imagen2.png)
 
-![Imagen mostrando aplicación](/screenshots/imagen1.png)
+---
 
-# 3. Por hacer
+## ✨ Características Principales
 
-- Depurar estilo CSS
-- Opción otros idiomas
-- Modo oscuro
+* **Compatibilidad Universal:** Soporta la carga y procesamiento de múltiples formatos de imagen (PNG, JPG, WebP, GIF, etc.).
+* **Compresión y Optimización:** Ajuste de la calidad de salida en formato JPEG y selección personalizada del color de fondo para transparencias.
+* **Redimensionado Inteligente:** Escala el ancho de las imágenes de forma proporcional manteniendo una alta fidelidad y nitidez mediante algoritmos de suavizado avanzado (`imageSmoothingQuality: 'high'`).
+* **Extractor de Metadatos PNG:** Si el archivo de origen es un PNG y contiene metadatos embebidos (chunks `tEXt`/`iTXt`), genera automáticamente un archivo `.txt` descriptivo asociado.
+* **Renombrado por Lotes:** Permite definir un prefijo y una numeración secuencial automática para organizar tus archivos cómodamente.
+* **Modo Oscuro Integrado:** Interfaz adaptativa visualmente cómoda mediante variables CSS nativas (conmutador 🌙/☀️).
+* **Soporte Bilingüe:** Arquitectura internacionalizada con cambio dinámico e instantáneo entre Español e Inglés (ES/EN).
+
+---
+
+## 💾 Sistemas de Guardado Inteligente (Híbrido)
+
+La aplicación detecta automáticamente las capacidades de tu navegador actual para ofrecerte la mejor experiencia de usuario:
+
+1. **Modo Directo a Carpeta (Navegadores Chromium - Chrome, Edge, Opera, Brave):** Utiliza la *File System Access API*. Te permite seleccionar una carpeta local de tu ordenador y guarda en ella de forma directa todo el lote de imágenes y archivos de texto procesados con un solo clic.
+2. **Modo Fallback Unificado a ZIP (Firefox, Safari, etc.):** Dado que estos navegadores restringen el acceso directo a carpetas por privacidad, la aplicación empaqueta automáticamente todo el lote procesado en un único archivo comprimido `.zip` de forma local usando la librería `JSZip`, evitando así la molesta apertura de decenas de ventanas de descarga individuales.
+3. **Descarga Individual:** Permite descargar los archivos procesados uno a uno si solo necesitas gestionar pocas imágenes.
+
+---
+
+## 🚀 Cómo Utilizar
+
+Al estar diseñada con tecnologías web nativas, no requiere de servidores, bases de datos ni complejas instalaciones de Node.js/npm.
+
+1. Clona o descarga este repositorio en tu equipo.
+2. Asegúrate de mantener juntos en el mismo directorio los archivos `index.html` y `jszip.min.js`.
+3. Doble clic sobre `index.html` para abrirlo en cualquier navegador moderno.
+4. ¡Listo! Puedes trabajar de manera **100% offline** (incluso sin conexión a internet).
